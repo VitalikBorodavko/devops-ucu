@@ -1,0 +1,26 @@
+# Build the backend
+FROM python:3.10 AS backend-builder
+# Setup the virtualenv
+ENV VIRTUAL_ENV=venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+# Create the final image
+FROM python:3.10-slim
+COPY --from=backend-builder venv venv
+COPY . /app
+# Set env vars
+ENV AWS_ACCESS_KEY_ID='##################'
+ENV AWS_REGION='##########'
+ENV DEFAULT_REGION='###############'
+ENV AWS_SECRET_ACCESS_KEY='#######################################'
+ENV DYNAMO_DB_NAME='#############'
+ENV LITE_REPORT_TOPIC='appotek/###/##############/'
+ENV REPORT_WARNING_TOPIC='#######/###/#######/'
+ENV PYTHON_ENV='###########'
+ENV PATH="venv/bin:$PATH"
+# Expose the required port
+EXPOSE 3000
+# Define the command to run your application
+CMD ["sh", "-c", "gunicorn app.main:app --workers=4 --worker-class=uvicorn.workers.UvicornWorker --bind=0.0.0.0:3000"]
