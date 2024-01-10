@@ -9,30 +9,30 @@ spec:
   selector:
     matchLabels:
       app: prometheus
-  strategy:
-    type: Recreate
   template:
     metadata:
       labels:
         app: prometheus
     spec:
       containers:
-        - args:
-            - --config.file=/etc/prometheus/prometheus.yml
+        - name: prometheus
           image: prom/prometheus
-          name: prometheus
           ports:
             - containerPort: 9090
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+          # resources: {}
           volumeMounts:
-            - mountPath: /etc/prometheus
-              name: prometheus-config
+          #   - mountPath: /etc/prometheus
+          #     name: prometheus-claim0
             - mountPath: /prometheus
-              name: prometheus-data
+              name: prom-data
       restartPolicy: Always
       volumes:
-        - name: prometheus-config
-          configMap:
-            name: prometheus-config
-        - name: prometheus-data
+      #   - name: prometheus-claim0
+      #     persistentVolumeClaim:
+      #       claimName: prometheus-claim0
+        - name: prom-data
           persistentVolumeClaim:
-            claimName: prometheus-data
+            claimName: prom-data
+# status: {}
